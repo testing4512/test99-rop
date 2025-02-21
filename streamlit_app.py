@@ -48,6 +48,8 @@ for df_lead in [lead_time_data_2024, lead_time_data_2023]:
     df_lead['lead_time_avg'] = pd.to_numeric(df_lead['lead_time_avg'], errors='coerce')
     df_lead['lead_time_maximal'] = pd.to_numeric(df_lead['lead_time_maximal'], errors='coerce')
 
+# Add this where other Excel files are loaded
+movement_status = pd.read_excel("movement_status.xlsx")
 
 # ----------------------------------------------------
 # Set Page Config
@@ -267,14 +269,24 @@ if st.sidebar.button("Search"):
         if filtered_data.empty:
             st.warning("Tidak ada data untuk filter yang dipilih.")
         else:
-            # Detail Barang
+            # Existing detail barang section
             first_row = filtered_data.iloc[0]
             nobar_value = first_row.get("nobar", "")
             nabar_value = first_row.get("nabar", "nabar TIDAK ADA")
             satuan_value = first_row.get("satuan", "satuan TIDAK ADA")
 
+            # First line with existing details
             st.write(f"**Nomor Barang:** {nobar_value} | **Nama Barang:** {nabar_value} | **Satuan:** {satuan_value}")
+            
+            # Add movement status on a new line
+            movement_data = movement_status[movement_status['nobar'].astype(str).str.contains(nobar_input, case=False, na=False)]
+            if not movement_data.empty:
+                status_value = movement_data.iloc[0].get('count', 'Status tidak ditemukan')
+                st.write(f"**Movement Status:** {status_value}")
+            else:
+                st.write("**Movement Status:** Data status tidak ditemukan")
 
+                
             # ------------------------------------------------
             # CARD - Data Pemakaian per Tahun
             # ------------------------------------------------
